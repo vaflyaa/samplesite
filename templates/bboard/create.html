@@ -1,0 +1,14 @@
+{% extends "layout/basic.html" %}
+
+{% block title %}Добавление объявления{% endblock %}
+
+{% block content %}
+<h2>Добавление объявления</h2>
+
+<!-- создать форму: кнопка "Добавить", цифровой жетон, и выводит эл. управления формой  -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Добавить">
+</form>
+{% endblock %}
