@@ -13,4 +13,3 @@ class BbAdmin(admin.ModelAdmin):
 admin.site.register(Bb, BbAdmin)
 admin.site.register(Rubric)
 
-

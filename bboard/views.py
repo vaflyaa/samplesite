@@ -1,16 +1,36 @@
 # from django.http import HttpResponse
 # from django.template import loader
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.detail import DetailView
+from django.views.generic.dates import ArchiveIndexView
+from django.urls import reverse_lazy
+from django.core import serializers
+from django.core.paginator import Paginator
 
+from .forms import BbForm
 from .models import Bb, Rubric
 
 
 def index(request):
-    # функция-сокращения:
-    bbs = Bb.objects.all()
-    rubrics = Rubric.objects.all()
-    context = {"bbs": bbs, "rubrics": rubrics}
+
+    rubrics = Rubric.objects.all() 
+    bbs = Bb.objects.all() 
+    paginator = Paginator(bbs, 2) 
+    if 'page' in request.GET:
+        page_num = request.GET['page'] 
+    else:
+        page_num = 1
+    page = paginator.get_page(page_num)
+    context = {'rubrics': rubrics, 'page': page, 'bbs': page.object_list} 
     return render(request, 'bboard/index.html', context)
+
+    # функция-сокращения:
+    # bbs = Bb.objects.all()
+    # rubrics = Rubric.objects.all()
+    # context = {"bbs": bbs, "rubrics": rubrics}
+    # return render(request, 'bboard/index.html', context)
 
     # template = loader.get_template('bboard/index.html')
     # bbs = Bb.objects.order_by('-published')
@@ -29,13 +49,15 @@ def by_rubric(request, rubric_id):
     bbs = Bb.objects.filter(rubric=rubric_id)
     rubrics = Rubric.objects.all()
     current_rubric = Rubric.objects.get(pk=rubric_id)
+    # rubric_serialized = serializers.serialize("python", rubrics.values(), ensure_ascii=False)
+    # return JsonResponse(list(rubrics), safe=False)
+    # return JsonResponse(rubric_serialized, safe=False)
+
+    # json_object = {'key': "value"}
+    # return JsonResponse(json_object)
+
     context = {'bbs': bbs, 'rubrics': rubrics, 'current_rubric': current_rubric}
     return render(request, 'bboard/by_rubric.html', context)
-
-
-from django.views.generic.edit import CreateView
-from .forms import BbForm
-from django.urls import reverse_lazy
 
 
 class BbCreateView(CreateView):
@@ -46,5 +68,50 @@ class BbCreateView(CreateView):
 # чтобы рубрики отображались на странице ввода
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class BbDetailView(DetailView):
+    model = Bb
+    # template_name = 'bboard/bb_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class BbEditView(UpdateView): 
+    model = Bb
+    form_class = BbForm 
+    success_url = reverse_lazy('index')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs) 
+        context['rubrics'] = Rubric.objects.all()
+        return context
+
+
+class BbDeleteView(DeleteView): 
+    model = Bb
+    success_url = '/'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs) 
+        context['rubrics'] = Rubric.objects.all ()
+        return context
+
+
+class BbIndexView(ArchiveIndexView): 
+    model = Bb
+    date_field = 'published'
+    date_list_period = 'day'
+    template_name = 'bboard/index.html' 
+    context_object_name = 'bbs' 
+    allow_empty = True
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs) 
         context['rubrics'] = Rubric.objects.all()
         return context
