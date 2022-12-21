@@ -4,6 +4,9 @@ header h1 {
     text-align: center;
     background: url("bboardimage.jpeg") left / auto 200% no-repeat;
 }
+.topnav-right {
+    float: right;
+}
 nav {
     font-size: 16pt;
     width: 150px;

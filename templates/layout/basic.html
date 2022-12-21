@@ -11,11 +11,17 @@
     <header>
         <h1>Объявления</h1>
     </header>
+    <div class="topnav">
+        <a href="{% url 'bboard:index' %}">Главная</a>
+        <div class="topnav-right">
+            <a href="{% url 'login' %}">Вход</a>
+            <a href="{% url 'signup' %}">Регистрация</a>
+        </div>
+    </div>
     <nav>
-        <a href="{% url 'index' %}">Главная</a>
-        <a href="{% url 'add' %}">Добавить</a>
+        <a href="{% url 'bboard:add' %}">Добавить</a>
         {% for rubric in rubrics %}
-        <a href="{% url 'by_rubric' rubric.pk %}">{{ rubric.name }}</a>
+        <a href="{% url 'bboard:by_rubric' rubric.pk %}">{{ rubric.name }}</a>
         {% endfor %}
     </nav>
     <section>

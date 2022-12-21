@@ -1,13 +1,15 @@
-# from django.http import HttpResponse
 # from django.template import loader
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.forms import modelformset_factory
+from django.forms.formsets import ORDERING_FIELD_NAME
+from django.shortcuts import render, redirect
+# from django.http import JsonResponse, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.dates import ArchiveIndexView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.core import serializers
 from django.core.paginator import Paginator
+
 
 from .forms import BbForm
 from .models import Bb, Rubric
@@ -25,12 +27,6 @@ def index(request):
     page = paginator.get_page(page_num)
     context = {'rubrics': rubrics, 'page': page, 'bbs': page.object_list} 
     return render(request, 'bboard/index.html', context)
-
-    # функция-сокращения:
-    # bbs = Bb.objects.all()
-    # rubrics = Rubric.objects.all()
-    # context = {"bbs": bbs, "rubrics": rubrics}
-    # return render(request, 'bboard/index.html', context)
 
     # template = loader.get_template('bboard/index.html')
     # bbs = Bb.objects.order_by('-published')
@@ -58,6 +54,24 @@ def by_rubric(request, rubric_id):
 
     context = {'bbs': bbs, 'rubrics': rubrics, 'current_rubric': current_rubric}
     return render(request, 'bboard/by_rubric.html', context)
+
+
+def rubrics(request):
+    RubricFormSet = modelformset_factory(Rubric, fields=('name',),
+                                        can_order=True, can_delete=True)
+    if request.method == 'POST':
+        formset = RubricFormSet(request.POST) 
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    rubric = form.save(coramit=False)
+                    rubric.order = form.cleaned_data[ORDERING_FIELD_NAME] 
+                    rubric.save()
+                    return redirect('bboard:index')
+    else:
+        formset = RubricFormSet()
+        context = {'formset': formset}
+        return render(request, 'bboard/rubrics.html', context)
 
 
 class BbCreateView(CreateView):
