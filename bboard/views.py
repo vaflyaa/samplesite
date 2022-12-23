@@ -9,6 +9,7 @@ from django.views.generic.dates import ArchiveIndexView
 from django.urls import reverse_lazy, reverse
 from django.core import serializers
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import user_passes_test
 
 
 from .forms import BbForm
@@ -56,6 +57,7 @@ def by_rubric(request, rubric_id):
     return render(request, 'bboard/by_rubric.html', context)
 
 
+@user_passes_test (lambda user: user.is_staff)
 def rubrics(request):
     RubricFormSet = modelformset_factory(Rubric, fields=('name',),
                                         can_order=True, can_delete=True)
@@ -64,10 +66,10 @@ def rubrics(request):
         if formset.is_valid():
             for form in formset:
                 if form.cleaned_data:
-                    rubric = form.save(coramit=False)
+                    rubric = form.save(commit=False)
                     rubric.order = form.cleaned_data[ORDERING_FIELD_NAME] 
                     rubric.save()
-                    return redirect('bboard:index')
+            return redirect('bboard:index')
     else:
         formset = RubricFormSet()
         context = {'formset': formset}
@@ -77,7 +79,7 @@ def rubrics(request):
 class BbCreateView(CreateView):
     template_name = 'bboard/create.html/'
     form_class = BbForm
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('bboard:index')
 
 # чтобы рубрики отображались на странице ввода
     def get_context_data(self, **kwargs):
@@ -99,7 +101,7 @@ class BbDetailView(DetailView):
 class BbEditView(UpdateView): 
     model = Bb
     form_class = BbForm 
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy('bboard:index')
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs) 

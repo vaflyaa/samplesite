@@ -3,11 +3,11 @@
 {% block title %}Удаление объявления{% endblock %}
 
 {% block content %}
-<Ь2>Удаление объявления</112> 
-<р>Рубрика: {{ bb.rubгiс.name }}</р> 
-<р>Товар: {{ bb.title }}</р>
-<р>{{ bb.content }}</р>
-<р>Цена: {{ bb.price }}</р>
+<h2>Удаление объявления</h2> 
+<p>Рубрика: {{ bb.rubric.name }}</р> 
+<p>Товар: {{ bb.title }}</р>
+<p>{{ bb.content }}</p>
+<p>Цена: {{ bb.price }}</р>
 <form method="post">
     {% csrf_token %}
     <input type="submit" value="Удалить">

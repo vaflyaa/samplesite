@@ -19,11 +19,11 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView,
 
 
 urlpatterns = [
-    path('bboard/', include('bboard.urls')),
+    path('', include('bboard.urls')),
     path('admin/', admin.site.urls),
-    path('signup/', include('users.urls')),
+    path('', include('users.urls')),
     path('accounts/login/', LoginView.as_view(template_name = 'registration/login.html'), name='login'),
     path('accounts/logout/', LogoutView.as_view(next_page=None), name='logout'),
     path('accounts/password_change/', PasswordChangeView.as_view(), name='password_change'),
-
+    # path('accounts/profile/',  ,name='profile')
 ]
